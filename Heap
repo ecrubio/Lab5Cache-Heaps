@@ -1,0 +1,129 @@
+"""
+Elizabeth Rubio
+Lab 5
+Part B
+"""
+
+import math
+
+class MaxHeap(object):
+    #Constructor
+    def __init__(self):
+        self.tree = []
+    
+    def parent(self, i):
+        if i == 0:
+            return -math.inf
+        return self.tree([i-i]//2)
+    
+    def left_child(self, i):
+        c = 2*i + 1
+        if c >= len(self.tree):
+            return -math.inf
+        return self.tree[c]
+    
+    def right_child(self, i):
+        c = 2*i + 2
+        if c >= len(self.tree):
+            return -math.inf
+        return self.tree[c]
+    
+    def insert(self, item):
+        self.tree.append(item)
+        self._precolate_up(len(self.tree)-1)
+        
+    def _precolate_up(self, i):
+        if i == 0:
+            return
+        
+        parent_index = (i-1)//2
+        
+        if self.tree[parent_index] < self.tree[i]:
+            self.tree[i], self.tree[parent_index] = self.tree[parent_index], self.tree[i]
+            self._precolate_up(parent_index)
+            
+    def extract_max(self):
+        if len(self.tree) < 1:
+            return None
+        if len(self.tree) == 1:
+            return self.tree.pop()
+        
+        root = self.tree[0]
+        self.tree[0] = self.tree.pop()
+        
+        self._percolate_down(0)
+        
+        return root
+    
+    def _percolate_down(self, i):
+        if self.tree[i] >= max(self.left_child(i), self.right_child(i)):
+            return
+        
+        max_child_index = 2*i +1 if self.left_child(i) > self.right_child(i) else 2*i + 2
+        
+        self.tree[i], self.tree[max_child_index] = self.tree[max_child_index], self.tree[i]
+        self._precolate_down(max_child_index)
+
+#this function creates the list into a set
+def list_set(main_list):
+    _dict = set()
+    for word in main_list:
+        _dict.add(word)
+    return _dict
+ 
+#attaching the frequency of the word    
+def frequency(main_set, main_list):
+    full_list = []
+    for word in main_set:
+        full_list.append(word)
+        full_list.append(0)
+    
+    for i in range(0,len(full_list),2):
+        for j in range(len(main_list)):
+            if main_list[j] == full_list[i]:
+                full_list[i+1] += 1
+    return full_list
+
+#This method inserts the word and frequency into the heap
+def creating_heap(main_freq):
+    heap = MaxHeap()
+    counter = 1
+    max_current = counter
+    length = len(main_freq)//2
+    #the while loop will keep going until the heap is filled
+    while len(heap.tree) <= length:
+        #once the max is found it is then inserted into the heap and removed
+        #from the list
+        if counter >= len(main_freq):
+            new_str = main_freq[max_current], main_freq[max_current-1] 
+            heap.insert(new_str)
+            main_freq.pop(max_current-1)
+            main_freq.pop(max_current-1)
+            max_current = 1
+            counter = 1
+        #If there is only one word left on the list then its inserted automatically
+        if len(main_freq) == 2:
+            new_str = main_freq[max_current], main_freq[max_current-1] 
+            heap.insert(new_str)
+            return heap
+        #Max_current is updated here
+        if main_freq[max_current] <= main_freq[counter]:
+            if main_freq[max_current] == main_freq[counter]:
+                if main_freq[max_current-1] < main_freq[counter-1]:
+                    max_current = counter
+            else:
+                max_current = counter
+        counter += 2
+    return heap
+            
+ 
+def main():
+    list_words = ['dog', 'taste', 'cup', 'photo', 'phone', 'taste', 'a', 'a', 'dog', 'a']
+    new_set = list_set(list_words)
+    print(new_set)
+    new_freq = frequency(new_set, list_words)
+    print(new_freq)
+    heap = creating_heap(new_freq)
+    print(heap.tree)
+            
+main()
